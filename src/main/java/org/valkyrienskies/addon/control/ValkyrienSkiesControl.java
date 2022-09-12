@@ -164,10 +164,14 @@ public class ValkyrienSkiesControl {
             new ResourceLocation(MOD_ID, "tile_gyroscope_dampener"));
         GameRegistry.registerTileEntity(TileEntityValkyriumEnginePart.class,
             new ResourceLocation(MOD_ID, "tile_valkyrium_engine_part"));
+        GameRegistry.registerTileEntity(TileEntityMotor.class,
+            new ResourceLocation(MOD_ID, "tile_motor"));
         GameRegistry.registerTileEntity(TileEntityGearbox.class,
             new ResourceLocation(MOD_ID, "tile_gearbox"));
         GameRegistry.registerTileEntity(TileEntityValkyriumCompressorPart.class,
             new ResourceLocation(MOD_ID, "tile_valkyrium_compressor_part"));
+        GameRegistry.registerTileEntity(TileEntityLifter.class,
+            new ResourceLocation(MOD_ID, "tile_lifter"));
         GameRegistry.registerTileEntity(TileEntityRudderPart.class,
             new ResourceLocation(MOD_ID, "tile_rudder_part"));
         GameRegistry.registerTileEntity(TileEntityGiantPropellerPart.class,

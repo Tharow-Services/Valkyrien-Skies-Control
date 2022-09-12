@@ -36,8 +36,10 @@ public class BlocksValkyrienSkiesControl {
     public final Block networkDisplay;
     public final Block liftLever;
     public final Block valkyriumCompressorPart;
+    public final Block lifter;
     public final Block gyroscopeDampener;
     public final Block valkyriumEnginePart;
+    public final Block motor;
     public final Block gearbox;
     public final Block rudderPart;
     public final Block giantPropellerPart;
@@ -74,7 +76,9 @@ public class BlocksValkyrienSkiesControl {
         liftLever = registerBlock(new BlockLiftLever());
 
         valkyriumCompressorPart = registerBlock(new BlockValkyriumCompressorPart());
+        lifter = registerBlock(new BlockLifter());
         valkyriumEnginePart = registerBlock(new BlockValkyriumEnginePart());
+        motor = registerBlock(new BlockMotor());
         rudderPart = registerBlock(new BlockRudderPart());
         giantPropellerPart = registerBlock(new BlockGiantPropellerPart());
         rotationAxle = registerBlock(new BlockRotationAxle());

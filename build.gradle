@@ -54,6 +54,7 @@ repositories {
         url = "http://dogforce-games.com/maven/"
     }
     maven { url 'https://jitpack.io' }
+    maven { url = "http://maven.cil.li/" }
     mavenCentral()
 }
 
@@ -80,6 +81,7 @@ dependencies {
 
     shade "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72"
 
+    compile "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"
     // lombok
     compileOnly "org.projectlombok:lombok:1.18.10"
     annotationProcessor "org.projectlombok:lombok:1.18.10"

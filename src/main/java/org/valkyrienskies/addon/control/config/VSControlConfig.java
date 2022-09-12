@@ -51,6 +51,10 @@ public class VSControlConfig extends VSConfigTemplate {
     @Config.Comment("Valkyrium Compressor efficiency linearly decreases until it reaches 0 at this height")
     public static double compressorMaxHeight = 500;
 
+    @Config.Name("Round Display Values")
+    @Config.Comment("Enables Showing the full double value for both the lift lever and ship wheel")
+    public static boolean showFullValue = true;
+
     @Config.Name("Engine Thrust Settings")
     @ShortName("engineThrust")
     @Config.Comment({

@@ -14,6 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.joml.Vector3d;
 import org.valkyrienskies.addon.control.block.multiblocks.TileEntityValkyriumCompressorPart;
+import org.valkyrienskies.addon.control.config.VSControlConfig;
 import org.valkyrienskies.addon.control.nodenetwork.VSNode_TileEntity;
 import org.valkyrienskies.mod.common.piloting.ControllerInputType;
 import org.valkyrienskies.mod.common.piloting.PilotControlsMessage;
@@ -144,7 +145,7 @@ public class TileEntityLiftLever extends TileEntityNodePilotableImpl {
         int i = gameResolution.getScaledWidth();
         int height = gameResolution.getScaledHeight() - 35;
         float middle = (float) (i / 2 - renderer.getStringWidth(message) / 2);
-        message = "Target Altitude: " + Math.round(targetYPosition);
+        message = "Target Altitude: " + (VSControlConfig.showFullValue ? targetYPosition : Math.round(targetYPosition));
         renderer.drawStringWithShadow(message, middle, height, color);
     }
 

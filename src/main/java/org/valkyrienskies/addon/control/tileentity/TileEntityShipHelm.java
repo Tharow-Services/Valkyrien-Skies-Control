@@ -1,6 +1,11 @@
 package org.valkyrienskies.addon.control.tileentity;
 
 import gigaherz.graph.api.GraphObject;
+import li.cil.oc.api.Network;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Callback;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
@@ -18,26 +23,31 @@ import org.joml.Vector3d;
 import org.valkyrienskies.addon.control.ValkyrienSkiesControl;
 import org.valkyrienskies.addon.control.block.BlockShipHelm;
 import org.valkyrienskies.addon.control.block.multiblocks.TileEntityRudderPart;
+import org.valkyrienskies.addon.control.config.VSControlConfig;
 import org.valkyrienskies.addon.control.nodenetwork.VSNode_TileEntity;
+import org.valkyrienskies.addon.control.util.TileEntityEnv;
+import org.valkyrienskies.addon.control.util.ValkyrienSkiesControlUtil;
 import org.valkyrienskies.mod.common.piloting.ControllerInputType;
 import org.valkyrienskies.mod.common.piloting.PilotControlsMessage;
 import org.valkyrienskies.mod.common.network.VSNetwork;
 import org.valkyrienskies.mod.common.ships.ship_world.PhysicsObject;
-import org.valkyrienskies.mod.common.tileentity.TileEntityPilotableImpl;
 import org.valkyrienskies.mod.common.util.ValkyrienUtils;
 import valkyrienwarfare.api.TransformType;
 
 import java.util.Optional;
 
-public class TileEntityShipHelm extends TileEntityNodePilotableImpl implements ITickable {
+public class TileEntityShipHelm extends TileEntityNodePilotableImpl implements ITickable, Environment, TileEntityEnv {
 
     public double compassAngle = 0;
     public double lastCompassAngle = 0;
-
     public double wheelRotation = 0;
+    public boolean doDecay = true;
     public double lastWheelRotation = 0;
-
     private double nextWheelRotation;
+
+    public TileEntityShipHelm() {
+        this.node = Network.newNode(this, Visibility.Network).withComponent("ship_helm", Visibility.Network).create();
+    }
 
     @Override
     public void update() {
@@ -47,7 +57,7 @@ public class TileEntityShipHelm extends TileEntityNodePilotableImpl implements I
             wheelRotation += (nextWheelRotation - wheelRotation) * .25D;
         } else {
             // Only decay rotation when there's no pilot
-            if (this.getPilotEntity() == null) {
+            if (this.getPilotEntity() == null && doDecay) {
                 double friction = .05D;
                 double toOriginRate = .05D;
                 if (Math.abs(wheelRotation) < 1.5) {
@@ -147,12 +157,22 @@ public class TileEntityShipHelm extends TileEntityNodePilotableImpl implements I
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
         lastWheelRotation = wheelRotation = compound.getDouble("wheelRotation");
+        doDecay = compound.getBoolean("doDecay");
+        if (this.node != null && this.node.host() == this) {
+            this.node.load(compound.getCompoundTag("oc:node"));
+        }
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         NBTTagCompound toReturn = super.writeToNBT(compound);
         compound.setDouble("wheelRotation", wheelRotation);
+        compound.setBoolean("doDecay", doDecay);
+        if (this.node != null && this.node.host() == this) {
+            NBTTagCompound nodeNbt = new NBTTagCompound();
+            this.node.save(nodeNbt);
+            compound.setTag("oc:node", nodeNbt);
+        }
         return toReturn;
     }
 
@@ -193,8 +213,51 @@ public class TileEntityShipHelm extends TileEntityNodePilotableImpl implements I
         int i = gameResolution.getScaledWidth();
         int height = gameResolution.getScaledHeight() - 35;
         float middle = (float) (i / 2 - renderer.getStringWidth(message) / 2);
-        message = "Wheel Rotation: " + Math.round(wheelRotation);
+        message = "Wheel Rotation: " + (VSControlConfig.showFullValue ? wheelRotation : Math.round(wheelRotation));
         renderer.drawStringWithShadow(message, middle, height, color);
     }
 
+    @Callback(doc = "get_rotation():double; Get the current rotation of the ship's helm", value = "get_rotation")
+    public Object[] getRotation(Context con, Arguments args) {
+        return new Object[]{wheelRotation};
+    }
+
+    @Callback(doc = "get_decay():boolean; is rotation decay enabled", value = "get_decay")
+    public Object[] getDecay(Context con, Arguments args) {
+        return new Object[]{doDecay};
+    }
+
+
+    @Callback(doc = "set_decay(enabled:boolean):boolean; enable or disable rotation decay", value = "set_decay")
+    public Object[] setDecay(Context con, Arguments args) {
+        this.doDecay = args.checkBoolean(0);
+        markDirty();
+        return new Object[]{true};
+    }
+
+    // OpenComputers Integration //
+    protected Node node;
+    public Node node() {
+        return this.node;
+    }
+
+    public void onLoad() {
+        Network.joinOrCreateNetwork(this);
+    }
+
+    public void onChunkUnload() {
+        super.onChunkUnload();
+        if (this.node != null) {
+            this.node.remove();
+        }
+
+    }
+
+    public void invalidate() {
+        super.invalidate();
+        if (this.node != null) {
+            this.node.remove();
+        }
+
+    }
 }
